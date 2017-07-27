@@ -24,7 +24,11 @@ Also is possible to add new loggers.
     <property name="undertow.level" value="INFO"/>
     <property name="xnio.level" value="INFO"/>
     <property name="root.level" value="INFO"/>
-    <logge
+    <logger name="org.springframework.context"  level="TRACE"
+               additivity="false">
+           <appender-ref ref="FILE"/>
+           <appender-ref ref="CONSOLE"/>
+       </logger>
     -->
 </included>
 ```
