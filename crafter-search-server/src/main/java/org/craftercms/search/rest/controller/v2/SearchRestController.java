@@ -30,6 +30,7 @@ import org.craftercms.search.exception.SearchException;
 import org.craftercms.search.service.Query;
 import org.craftercms.search.service.SearchService;
 import org.craftercms.search.service.impl.QueryParams;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -65,12 +66,8 @@ public class SearchRestController {
 
     private static final String[] NON_ADDITIONAL_FIELD_NAMES = {PARAM_INDEX_ID, PARAM_SITE, PARAM_ID, PARAM_CONTENT};
 
+    @Autowired
     private SearchService searchService;
-
-    @Required
-    public void setSearchService(SearchService searchService) {
-        this.searchService = searchService;
-    }
 
     @RequestMapping(value = URL_SEARCH, method = RequestMethod.GET)
     @SuppressWarnings("unchecked")

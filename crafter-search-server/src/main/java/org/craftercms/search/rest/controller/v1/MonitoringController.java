@@ -20,22 +20,21 @@ import java.util.Collections;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Required;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-@RestController
+@RestController(value = "v1.monitoringController")
 @RequestMapping(MonitoringController.URL_ROOT)
 public class MonitoringController {
 
     public final static String URL_ROOT = "/api/1/monitoring";
 
+    @Value("${search.main.monitoring.statusMessage}")
     private String statusMessage;
 
-    @Required
-    public void setStatusMessage(String statusMessage) {
-        this.statusMessage = statusMessage;
-    }
+
 
     @RequestMapping(value = "/status", method = RequestMethod.GET)
     public Map<String, String> getStatus() {

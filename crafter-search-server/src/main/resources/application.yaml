@@ -1,0 +1,107 @@
+
+search:
+    server:
+      port: 8666
+      contextPath:
+      log:
+        dir: ${search.main.folderPath}/logs
+        name: search.log
+        accesslog:
+                enable: false
+    main:
+        folderPath: .
+        overrideLocation: file*:${search.main.folderPath}/search-services-context.xml
+        index:
+            default: default
+        monitoring:
+            statusMessage: Crafter Search Running
+        solr:
+            admin:
+                defaultConfigName: ''
+                defaultConfigSet: crafter_configs
+                defaultDataDir: ''
+                defaultInstanceDir: ''
+                defaultSchemaName: ''
+            delete:
+                xml:
+                    query: id:"%1$s" OR parentId:"%1$s"
+                    regex: .*\.xml$
+            document:
+                postProcessor:
+                    denormalizing:
+                        copyChildrenFieldsToParent: true
+                        copyParentFieldsToChildren: true
+                        fieldsToIgnore: ${search.main.solr.field.id.name},${search.main.solr.field.parentId.name},${search.main.solr.field.rootId.name},${search.main.solr.field.site.name},${search.main.solr.field.localId.name},${search.main.solr.field.contentType.name},${search.main.solr.field.fileName.name},${search.main.solr.field.publishedDate.name},${search.main.solr.field.publishedDate.alt.name}
+            field:
+                contentType:
+                    name: content-type
+                fileName:
+                    name: file-name
+                id:
+                    name: id
+                localId:
+                    name: localId
+                multiValue:
+                    ignore:
+                        pattern: ^.+_(html|i|s|l|t|b|f|d|dt)$
+                    separator: ','
+                parentId:
+                    name: parentId
+                publishedDate:
+                    alt:
+                        name: crafterPublishedDate_dt
+                    name: crafterPublishedDate
+                rootId:
+                    name: rootId
+                site:
+                    name: crafterSite
+                type:
+                    boolean:
+                        multiValued:
+                            suffix: _bmv
+                        suffix: _b
+                    datetime:
+                        multiValued:
+                            suffix: _dts
+                        pattern: MM/dd/yyyy HH:mm:ss
+                        suffix: _dt
+                    double:
+                        multiValued:
+                            suffix: _dmv
+                        suffix: _d
+                    float:
+                        multiValued:
+                            suffix: _fmv
+                        suffix: _f
+                    html:
+                        suffix: _html
+                    int:
+                        multiValued:
+                            suffix: _imv
+                        suffix: _i
+                    long:
+                        multiValued:
+                            suffix: _lmv
+                        suffix: _l
+                    string:
+                        multiValued:
+                            suffix: _smv
+                        suffix: _s
+                    text:
+                        multiValued:
+                            suffix: _txt
+                        suffix: _t
+            filter:
+                additional:
+                    queries: -disabled:"true",-expired_dt:[* TO NOW]
+            server:
+                url: http://localhost:8983/solr
+        xml:
+            element:
+                containsSubDocuments:
+                    name: sub-docs
+                subDocument:
+                    name: item
+logging:
+  file: ${search.server.log.name}
+  path: ${search.server.log.dir}

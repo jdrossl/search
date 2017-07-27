@@ -23,6 +23,7 @@ import org.craftercms.commons.rest.Result;
 import org.craftercms.search.rest.requests.CreateIndexRequest;
 import org.craftercms.search.rest.requests.DeleteIndexRequest;
 import org.craftercms.search.service.AdminService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -47,12 +48,8 @@ import static org.craftercms.search.rest.AdminRestApiConstants.URL_ROOT;
 @RequestMapping(URL_ROOT)
 public class AdminRestController {
 
+    @Autowired
     protected AdminService adminService;
-
-    @Required
-    public void setAdminService(AdminService adminService) {
-        this.adminService = adminService;
-    }
 
     @RequestMapping(value = URL_CREATE_INDEX, method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.CREATED)

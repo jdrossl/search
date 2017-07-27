@@ -35,7 +35,9 @@ import org.craftercms.search.service.SearchService;
 import org.craftercms.search.service.impl.QueryParams;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Required;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -54,7 +56,7 @@ import org.springframework.web.multipart.MultipartFile;
  * @author Alfonso Vásquez
  * @author Dejan Brkic
  */
-@Controller
+@Controller("v1.searchRestController")
 @RequestMapping(SearchRestController.URL_ROOT)
 public class SearchRestController {
 
@@ -77,24 +79,13 @@ public class SearchRestController {
     private static final String[] NON_ADDITIONAL_FIELD_NAMES =
         {REQUEST_PARAM_INDEX_ID, REQUEST_PARAM_SITE, REQUEST_PARAM_ID, REQUEST_PARAM_DOCUMENT};
 
+    @Autowired
     protected SearchService searchService;
+    @Value("${search.main.solr.field.multiValue.separator}")
     protected String multiValueSeparator;
+    @Value("${search.main.solr.field.multiValue.ignore.pattern}")
     protected String multiValueIgnorePattern;
 
-    @Required
-    public void setSearchService(SearchService searchService) {
-        this.searchService = searchService;
-    }
-
-    @Required
-    public void setMultiValueSeparator(String multiValueSeparator) {
-        this.multiValueSeparator = multiValueSeparator;
-    }
-
-    @Required
-    public void setMultiValueIgnorePattern(String multiValueIgnorePattern) {
-        this.multiValueIgnorePattern = multiValueIgnorePattern;
-    }
 
     @RequestMapping(value = URL_SEARCH, method = RequestMethod.GET)
     @ResponseBody

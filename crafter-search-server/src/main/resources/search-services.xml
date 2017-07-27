@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+
+<!-- JSR-303/JSR-349 support will be detected
+    on classpath and enabled automatically -->
+    <context:annotation-config/>
+    <context:property-placeholder file-encoding="UTF-8" />
+    <context:annotation-config/>
+    
+    <bean id="crafter.solrClient" class="org.apache.solr.client.solrj.impl.HttpSolrClient">
+        <constructor-arg value="${search.main.solr.server.url}"/>
+    </bean>
+
+    <bean id="crafter.tokenizedElementParser" class="org.craftercms.search.service.impl.TokenizedElementParser"/>
+
+    <bean id="crafter.subDocumentElementParser" class="org.craftercms.search.service.impl.SubDocumentElementParser">
+        <property name="containsSubDocumentsAttributeName"
+                  value="${search.main.xml.element.containsSubDocuments.name}"/>
+        <property name="subDocumentElementName"
+                  value="${search.main.xml.element.subDocument.name}"/>
+        <property name="idFieldName" value="${search.main.solr.field.id.name}"/>
+        <property name="parentIdFieldName" value="${search.main.solr.field.parentId.name}"/>
+        <property name="siteFieldName" value="${search.main.solr.field.site.name}"/>
+        <property name="localIdFieldName" value="${search.main.solr.field.localId.name}"/>
+        <property name="publishingDateFieldName" value="${search.main.solr.field.publishedDate.name}"/>
+        <property name="publishingDateAltFieldName" value="${search.main.solr.field.publishedDate.alt.name}"/>
+        <property name="contentTypeFieldName" value="${search.main.solr.field.contentType.name}"/>
+    </bean>
+
+    <bean id="crafter.defaultElementParser" class="org.craftercms.search.service.impl.DefaultElementParser">
+        <property name="fieldValueConverter" ref="crafter.fieldValueConverter"/>
+    </bean>
+
+    <bean id="crafter.elementParserService" class="org.craftercms.search.service.impl.ElementParserServiceImpl">
+        <property name="parsers">
+            <list>
+                <ref bean="crafter.tokenizedElementParser"/>
+                <ref bean="crafter.subDocumentElementParser"/>
+                <ref bean="crafter.defaultElementParser"/>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="crafter.renameFieldsIfMultiValuePostProcessor"
+          class="org.craftercms.search.service.impl.RenameFieldsIfMultiValuePostProcessor">
+        <property name="idFieldName" value="${search.main.solr.field.id.name}"/>
+        <property name="singleToMultiValueSuffixMappings" ref="crafter.singleToMultiValueSuffixMappings"/>
+    </bean>
+
+    <bean id="crafter.denormalizingPostProcessor" class="org.craftercms.search.service.impl.DenormalizingPostProcessor">
+        <property name="fieldsToIgnore"
+                  value="${search.main.solr.document.postProcessor.denormalizing.fieldsToIgnore}"/>
+        <property name="copyChildrenFieldsToParent"
+                  value="${search.main.solr.document.postProcessor.denormalizing.copyChildrenFieldsToParent}"/>
+        <property name="copyParentFieldsToChildren"
+                  value="${search.main.solr.document.postProcessor.denormalizing.copyParentFieldsToChildren}"/>
+    </bean>
+
+    <bean id="crafter.solrDocumentBuilder" class="org.craftercms.search.service.impl.SolrDocumentBuilderImpl">
+        <property name="idFieldName" value="${search.main.solr.field.id.name}"/>
+        <property name="rootIdFieldName" value="${search.main.solr.field.rootId.name}"/>
+        <property name="siteFieldName" value="${search.main.solr.field.site.name}"/>
+        <property name="localIdFieldName" value="${search.main.solr.field.localId.name}"/>
+        <property name="publishingDateFieldName" value="${search.main.solr.field.publishedDate.name}"/>
+        <property name="publishingDateAltFieldName" value="${search.main.solr.field.publishedDate.alt.name}"/>
+        <property name="fieldValueConverter" ref="crafter.fieldValueConverter"/>
+        <property name="parserService" ref="crafter.elementParserService"/>
+        <property name="postProcessors">
+            <list>
+                <ref bean="crafter.renameFieldsIfMultiValuePostProcessor"/>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="crafter.fieldValueConverter" class="org.craftercms.search.service.impl.CompositeSuffixBasedConverter">
+        <property name="converterMappings">
+            <map>
+                <entry key="${search.main.solr.field.type.html.suffix}"
+                       value-ref="crafter.htmlStrippingConverter"/>
+                <entry key="${search.main.solr.field.type.datetime.suffix}"
+                       value-ref="crafter.dateTimeConverter"/>
+                <entry key="${search.main.solr.field.type.datetime.multiValued.suffix}"
+                       value-ref="crafter.dateTimeConverter"/>
+            </map>
+        </property>
+    </bean>
+
+    <bean id="crafter.htmlStrippingConverter" class="org.craftercms.search.service.impl.HtmlStrippingConverter"/>
+
+    <bean id="crafter.dateTimeConverter" class="org.craftercms.search.service.impl.DateTimeConverter">
+        <property name="dateTimeFieldPattern" value="${search.main.solr.field.type.datetime.pattern}"/>
+    </bean>
+
+    <bean id="crafter.adminService" class="org.craftercms.search.service.impl.SolrAdminService">
+        <property name="solrClient" ref="crafter.solrClient"/>
+        <property name="defaultInstanceDir" value="${search.main.solr.admin.defaultInstanceDir}"/>
+        <property name="defaultConfigName" value="${search.main.solr.admin.defaultConfigName}"/>
+        <property name="defaultSchemaName" value="${search.main.solr.admin.defaultSchemaName}"/>
+        <property name="defaultDataDir" value="${search.main.solr.admin.defaultDataDir}"/>
+        <property name="defaultConfigSet" value="${search.main.solr.admin.defaultConfigSet}"/>
+    </bean>
+
+    <bean id="crafter.searchService" class="org.craftercms.search.service.impl.SolrSearchService">
+        <property name="defaultIndexId" value="${search.main.index.default}"/>
+        <property name="fileNameFieldName" value="${search.main.solr.field.fileName.name}"/>
+        <property name="solrClient" ref="crafter.solrClient"/>
+        <property name="solrDocumentBuilder" ref="crafter.solrDocumentBuilder"/>
+        <property name="multiValueSeparator" value="${search.main.solr.field.multiValue.separator}"/>
+        <property name="multiValueIgnorePattern" value="${search.main.solr.field.multiValue.ignore.pattern}"/>
+        <property name="deleteQueryMappings">
+            <map>
+                <entry key="${search.main.solr.delete.xml.regex}" value="${search.main.solr.delete.xml.query}"/>
+            </map>
+        </property>
+        <property name="additionalFilterQueries" value="${search.main.solr.filter.additional.queries}"/>
+    </bean>
+
+    <util:map id="crafter.singleToMultiValueSuffixMappings">
+        <entry key="${search.main.solr.field.type.int.suffix}"
+               value="${search.main.solr.field.type.int.multiValued.suffix}"/>
+        <entry key="${search.main.solr.field.type.string.suffix}"
+               value="${search.main.solr.field.type.string.multiValued.suffix}"/>
+        <entry key="${search.main.solr.field.type.long.suffix}"
+               value="${search.main.solr.field.type.long.multiValued.suffix}"/>
+        <entry key="${search.main.solr.field.type.text.suffix}"
+               value="${search.main.solr.field.type.text.multiValued.suffix}"/>
+        <entry key="${search.main.solr.field.type.boolean.suffix}"
+               value="${search.main.solr.field.type.boolean.multiValued.suffix}"/>
+        <entry key="${search.main.solr.field.type.float.suffix}"
+               value="${search.main.solr.field.type.float.multiValued.suffix}"/>
+        <entry key="${search.main.solr.field.type.double.suffix}"
+               value="${search.main.solr.field.type.double.multiValued.suffix}"/>
+        <entry key="${search.main.solr.field.type.datetime.suffix}"
+               value="${search.main.solr.field.type.datetime.multiValued.suffix}"/>
+    </util:map>
+
+    <import resource="${search.main.overrideLocation}"/>
+
+</beans>
