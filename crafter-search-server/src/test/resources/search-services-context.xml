@@ -5,16 +5,16 @@
 
     <bean id="crafter.solrClient" class="org.apache.solr.client.solrj.embedded.EmbeddedSolrServer">
         <constructor-arg value="#{T(java.nio.file.Paths).get('${solr.home}')}"/>
-        <constructor-arg value="default"/>
+        <constructor-arg value="${core.name}"/>
     </bean>
 
     <bean id="crafter.solrDocumentBuilder" class="org.craftercms.search.service.impl.SolrDocumentBuilderImpl">
-        <property name="idFieldName" value="${crafter.search.solr.field.id.name}"/>
-        <property name="rootIdFieldName" value="${crafter.search.solr.field.rootId.name}"/>
-        <property name="siteFieldName" value="${crafter.search.solr.field.site.name}"/>
-        <property name="localIdFieldName" value="${crafter.search.solr.field.localId.name}"/>
-        <property name="publishingDateFieldName" value="${crafter.search.solr.field.publishedDate.name}"/>
-        <property name="publishingDateAltFieldName" value="${crafter.search.solr.field.publishedDate.alt.name}"/>
+        <property name="idFieldName" value="${search.main.solr.field.id.name}"/>
+        <property name="rootIdFieldName" value="${search.main.solr.field.rootId.name}"/>
+        <property name="siteFieldName" value="${search.main.solr.field.site.name}"/>
+        <property name="localIdFieldName" value="${search.main.solr.field.localId.name}"/>
+        <property name="publishingDateFieldName" value="${search.main.solr.field.publishedDate.name}"/>
+        <property name="publishingDateAltFieldName" value="${search.main.solr.field.publishedDate.alt.name}"/>
         <property name="fieldValueConverter" ref="crafter.fieldValueConverter"/>
         <property name="parserService" ref="crafter.elementParserService"/>
         <property name="postProcessors">

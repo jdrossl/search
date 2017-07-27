@@ -12,14 +12,21 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <solr.home>${project.build.directory}/test-classes/solr</solr.home>
     </properties>
 
     <dependencies>
+        <!-- Spring Boot Dependencies -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
-            <version>1.5.4.RELEASE</version>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-undertow</artifactId>
+        </dependency>
+        <!-- Spring Boot Dependencies -->
+
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>crafter-search-api</artifactId>
@@ -79,10 +86,13 @@
 
         <!-- Test -->
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>${junit.version}</version>
-            <scope>test</scope>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.craftercms</groupId>
+            <artifactId>crafter-search-client</artifactId>
+            <version>3.0.0-SNAPSHOT</version>
         </dependency>
     </dependencies>
 
@@ -92,7 +102,6 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>1.5.4.RELEASE</version>
             </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -128,6 +137,53 @@
                         </manifestEntries>
                     </archive>
                 </configuration>
+            </plugin>
+            <!-- Skip Surefire so that our integration tests are not run as unit tests -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.14.1</version>
+                <configuration>
+                    <skipTests>true</skipTests>
+                </configuration>
+            </plugin>
+            <!-- Run Failsafe plugin ('integration-test' and 'verify') on JUnit test classes -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>2.14.1</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>2.6</version>
+                <executions>
+                    <execution>
+                        <id>copy-solr-home</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${solr.home}</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <targetPath>configsets</targetPath>
+                                    <directory>../crafter-search-provider/solr/configsets</directory>
+                                    <filtering>false</filtering>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

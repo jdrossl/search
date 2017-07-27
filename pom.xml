@@ -49,7 +49,6 @@
         <module>crafter-search-api</module>
         <module>crafter-search-server</module>
         <module>crafter-search-client</module>
-        <module>crafter-search-itest</module>
         <module>crafter-search-batch-indexer</module>
     </modules>
 
@@ -231,11 +230,6 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-oxm</artifactId>
             <version>${spring.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.undertow</groupId>
-            <artifactId>undertow-servlet</artifactId>
-            <version>1.4.0.Final</version>
         </dependency>
         <!-- Spring end -->
     </dependencies>

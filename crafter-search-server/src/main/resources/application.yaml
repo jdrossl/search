@@ -1,3 +1,4 @@
+# Crafter Search Properties
 
 search:
     server:
@@ -102,6 +103,15 @@ search:
                     name: sub-docs
                 subDocument:
                     name: item
+
+# Spring Boot Properties
+
+server:
+  port: ${search.server.port}
+  context-path: ${search.server.contextPath}
+  undertow:
+    accesslog:
+      enabled: ${search.server.log.accesslog.enable}
+      dir: ${search.server.log.dir}
 logging:
-  file: ${search.server.log.name}
-  path: ${search.server.log.dir}
+  file: ${search.server.log.dir}/${search.server.log.name}

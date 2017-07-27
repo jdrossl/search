@@ -14,7 +14,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.craftercms.search.impl;
+
+package org.craftercms.search;
 
 import java.io.File;
 import java.io.IOException;
@@ -35,30 +36,23 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
-/**
- * Integration test of the search service client/server.
- *
- * @author Alfonso Vásquez
- */
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = "classpath:/spring/application-context.xml")
-public class SearchServiceIT {
+@RunWith(SpringRunner.class)
+@TestPropertySource(locations = "classpath:test.yaml")
+@SpringBootTest(webEnvironment = RANDOM_PORT)
+public class SearchIT {
 
-    private static final Logger logger = LoggerFactory.getLogger(SearchServiceIT.class);
-
-    private static final String DEFAULT_INDEX_ID = "default";
     private static final String PLUTON_SITE = "pluton";
     private static final String PLUTON_INDEX_ID = "pluton";
     private static final String IPAD_DOC_ID = "ipad.xml";
@@ -69,14 +63,23 @@ public class SearchServiceIT {
     private static final String WP_REASONS_PDF_DOC_ID = "crafter-wp-7-reasons.pdf";
 
     private static final List<String> WP_REASONS_PDF_TAGS = Arrays.asList("Crafter", "reasons", "white paper");
-    
-    @Autowired
+
+    @Value("${local.server.port}")
+    private int port;
+
     private SolrRestClientSearchService searchService;
-    @Autowired
+
     private RestClientAdminService adminService;
+
 
     @Before
     public void setUp() throws Exception {
+        searchService = new SolrRestClientSearchService();
+        searchService.setServerUrl("http://localhost:" + port);
+
+        adminService = new RestClientAdminService();
+        adminService.setServerUrl("http://localhost:" + port);
+
         adminService.createIndex(PLUTON_INDEX_ID);
     }
 
@@ -143,7 +146,7 @@ public class SearchServiceIT {
 
         results = searchService.search(PLUTON_INDEX_ID, query);
         assertNotNull(results);
-        
+
         response = getQueryResponse(results);
         assertEquals(1, getNumDocs(response));
 
@@ -218,7 +221,7 @@ public class SearchServiceIT {
         assertEquals("product", doc.get("content-type"));
         assertEquals(Arrays.asList("Apple", "iPad", "Tablet"), doc.get("tags.value_smv"));
         assertEquals(Arrays.asList("Silicon case with stand for iPad Air 64GB", "Lighting cable for iPad"),
-                     trimValues((Collection<Object>)doc.get("accessories.item.description_html")));
+            trimValues((Collection<Object>)doc.get("accessories.item.description_html")));
         assertEquals(Arrays.asList("Case", "Lighting Cable"), doc.get("accessories.item.name_smv"));
         assertEquals(Arrays.asList("Black", "Blue", "Red"), doc.get("accessories.item.colors.color_smv"));
     }
