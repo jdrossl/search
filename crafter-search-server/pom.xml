@@ -90,9 +90,10 @@
             <artifactId>spring-boot-starter-test</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.craftercms</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>crafter-search-client</artifactId>
-            <version>3.0.0-SNAPSHOT</version>
+            <version>${project.version}</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
@@ -161,6 +162,7 @@
                     </execution>
                 </executions>
             </plugin>
+            <!-- Copy Solr home and Solr extraction jars from crafter-search-provider/solr -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>

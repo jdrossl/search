@@ -116,10 +116,6 @@ public class SearchRestController {
             File tmpFile = File.createTempFile("crafter-" + file.getOriginalFilename(), "");
             MultiValueMap<String, String> additionalFields = getAdditionalMultiValueFields(request);
 
-            if(tmpFile.exists()) {
-                tmpFile.delete();
-            }
-
             file.transferTo(tmpFile);
 
             try {
