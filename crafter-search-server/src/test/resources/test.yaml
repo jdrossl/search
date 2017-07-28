@@ -1,7 +1,6 @@
 solr.home: ./target/test-classes/solr
 core.name: default
 
-search.main.solr.server.url: http://localhost:7070/crafter-search
 search.main.overrideLocation: classpath*:search-services-context.xml
 
 logging.file:

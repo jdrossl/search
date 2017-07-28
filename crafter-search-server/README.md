@@ -1,34 +1,24 @@
 ### Crafter Search 
 
+## Custom Configuration
 
+To use a custom cofiguration you can place a YAML file in a `config` folder in
+the same directory where the `search.jar` is placed.
+Using that file you can override any property from Crafter Search or Spring Boot.
 
+Example: `./config/application.yaml`
 
+```YAML
+# Change Solr Server
+search.main.solr.server.url: http://localhost:8694/solr
 
-####  Logging Extended configuration
-To change log level, extend logger you can use 
-a file named `logging-ext.xml` that must be in the same 
-path as the `search.jar` or add a environment variable
-name `SEARCH_EXT_LOG_CONF` with the folder path where the `logging-ext.xml` file.
+# Change Crafter Search Port
+search.server.port: 9080
 
-The file `logging-ext.xml` is scanned every 2 minutes for changes so a restart
-to see the new log level (or any other logback confi change) is not needed.
-Also is possible to add new loggers. 
-```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<included>
-   <!--<property name="root.level" value="INFO"/>
-    <!-- <property name="search.level" value="INFO"/>
-    <property name="commons.level" value="INFO"/>
-    <property name="core.level" value="INFO"/>
-    <property name="boot.level" value="INFO"/>
-    <property name="undertow.level" value="INFO"/>
-    <property name="xnio.level" value="INFO"/>
-    <property name="root.level" value="INFO"/>
-    <logger name="org.springframework.context"  level="TRACE"
-               additivity="false">
-           <appender-ref ref="FILE"/>
-           <appender-ref ref="CONSOLE"/>
-       </logger>
-    -->
-</included>
+# Chage Logging Levels
+logging.level:
+	org.springframework: DEBUG
+	org.craftercms.search: DEBUG
+	io.undertow: DEBUG
 ```
+
