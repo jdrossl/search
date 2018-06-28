@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
+
+    <bean id="crafter.elasticClient" class="org.craftercms.search.service.elastic.ElasticClientFactory">
+        <property name="host" value="localhost"/>
+        <property name="port" value="9200"/>
+        <property name="protocol" value="http"/>
+    </bean>
+
+    <bean id="crafter.adminService" class="org.craftercms.search.service.elastic.ElasticAdminService">
+        <property name="client" ref="crafter.elasticClient"/>
+    </bean>
+
+    <bean id="crafter.searchService" class="org.craftercms.search.service.elastic.ElasticSearchService">
+        <property name="client" ref="crafter.elasticClient"/>
+    </bean>
+
+</beans>

@@ -41,7 +41,9 @@ public interface SearchService<T extends Query> extends QueryFactory<T> {
      *
      * @throws SearchException if any error occurs that makes the search fail
      */
-    Map<String, Object> search(T query) throws SearchException;
+    default Map<String, Object> search(T query) throws SearchException {
+        return search(null, query);
+    }
 
     /**
      * Does a full-text search and returns a Map model.
@@ -65,7 +67,9 @@ public interface SearchService<T extends Query> extends QueryFactory<T> {
      * @param ignoreRootInFieldNames ignore the root element of the input XML in field names
      * @throws SearchException
      */
-    void update(String site, String id, String xml, boolean ignoreRootInFieldNames) throws SearchException;
+    default void update(String site, String id, String xml, boolean ignoreRootInFieldNames) throws SearchException {
+        update(null, site, id, xml, ignoreRootInFieldNames);
+    }
 
     /**
      * Updates the search engine's index data of an XML document.
@@ -86,7 +90,9 @@ public interface SearchService<T extends Query> extends QueryFactory<T> {
      * @param id   the id of the content, within the site
      * @throws SearchException
      */
-    void delete(String site, String id) throws SearchException;
+    default void delete(String site, String id) throws SearchException {
+        delete(null, site, id);
+    }
 
     /**
      * Deletes the search engine's index data of an XML document.
@@ -106,7 +112,9 @@ public interface SearchService<T extends Query> extends QueryFactory<T> {
      * @param file  the file content to update in the index
      * @throws SearchException
      */
-    void updateContent(String site, String id, File file) throws SearchException;
+    default void updateContent(String site, String id, File file) throws SearchException {
+        updateContent(null, site, id, file, null);
+    }
 
     /**
      * Updates the search engine's index data of a binary or structured document (PDF, Word, Office).
@@ -117,7 +125,9 @@ public interface SearchService<T extends Query> extends QueryFactory<T> {
      * @param file      the file content to update in the index
      * @throws SearchException
      */
-    void updateContent(String indexId, String site, String id, File file) throws SearchException;
+    default void updateContent(String indexId, String site, String id, File file) throws SearchException {
+        updateContent(indexId, site, id, file, null);
+    }
 
     /**
      * Updates the search engine's index data of a binary or structured document (PDF, Word, Office).
@@ -129,7 +139,10 @@ public interface SearchService<T extends Query> extends QueryFactory<T> {
      *                          document)
      * @throws SearchException
      */
-    void updateContent(String site, String id, File file, Map<String, List<String>> additionalFields) throws SearchException;
+    default void updateContent(String site, String id, File file, Map<String, List<String>> additionalFields) throws
+        SearchException {
+        updateContent(null, site, id, file, additionalFields);
+    }
 
     /**
      * Updates the search engine's index data of a binary or structured document (PDF, Word, Office).
@@ -152,7 +165,9 @@ public interface SearchService<T extends Query> extends QueryFactory<T> {
      * @param content   the file content to update in the index
      * @throws SearchException
      */
-    void updateContent(String site, String id, Content content) throws SearchException;
+    default void updateContent(String site, String id, Content content) throws SearchException {
+        throw new UnsupportedOperationException("Only use updateContent methods that receive a file");
+    }
 
     /**
      * Updates the search engine's index data of a binary or structured document (PDF, Word, Office).
@@ -163,7 +178,9 @@ public interface SearchService<T extends Query> extends QueryFactory<T> {
      * @param content   the file content to update in the index
      * @throws SearchException
      */
-    void updateContent(String indexId, String site, String id, Content content) throws SearchException;
+    default void updateContent(String indexId, String site, String id, Content content) throws SearchException {
+        throw new UnsupportedOperationException("Only use updateContent methods that receive a file");
+    }
 
     /**
      * Updates the search engine's index data of a binary or structured document (PDF, Word, Office).
@@ -175,7 +192,10 @@ public interface SearchService<T extends Query> extends QueryFactory<T> {
      *                          document)
      * @throws SearchException
      */
-    void updateContent(String site, String id, Content content, Map<String, List<String>> additionalFields) throws SearchException;
+    default void updateContent(String site, String id, Content content, Map<String, List<String>> additionalFields)
+        throws SearchException {
+        throw new UnsupportedOperationException("Only use updateContent methods that receive a file");
+    }
 
     /**
      * Updates the search engine's index data of a binary or structured document (PDF, Word, Office).
@@ -188,15 +208,19 @@ public interface SearchService<T extends Query> extends QueryFactory<T> {
      *                          document)
      * @throws SearchException
      */
-    void updateContent(String indexId, String site, String id, Content content,
-                       Map<String, List<String>> additionalFields) throws SearchException;
+    default void updateContent(String indexId, String site, String id, Content content,
+                       Map<String, List<String>> additionalFields) throws SearchException {
+        throw new UnsupportedOperationException("Only use updateContent methods that receive a file");
+    }
 
     /**
      * Commits any pending changes made to the search engine's default index.
      *
      * @throws SearchException
      */
-    void commit() throws SearchException;
+    default void commit() throws SearchException {
+        commit(null);
+    }
 
     /**
      * Commits any pending changes made to the search engine's default index.

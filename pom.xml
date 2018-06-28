@@ -51,8 +51,8 @@
         <commons.collection4.version>4.1</commons.collection4.version>
         <commons.fileupload.version>1.3.2</commons.fileupload.version>
         <commons.io.version>2.5</commons.io.version>
-        <httpcomponents.httpclient.version>4.3.1</httpcomponents.httpclient.version>
-        <httpcomponents.httpmime.version>4.3.1</httpcomponents.httpmime.version>
+        <httpcomponents.httpclient.version>4.5.5</httpcomponents.httpclient.version>
+        <httpcomponents.httpmime.version>4.5.5</httpcomponents.httpmime.version>
         <jackson.version>2.8.11</jackson.version>
         <spring.version>4.3.7.RELEASE</spring.version>
         <slf4j.version>1.7.7</slf4j.version>
@@ -60,7 +60,8 @@
         <dom4j.version>1.6.1</dom4j.version>
         <jaxen.version>1.1.1</jaxen.version>
         <rome.version>0.9</rome.version>
-        <solrj.version>6.6.3</solrj.version>
+        <solrj.version>7.4.0</solrj.version>
+        <elasticsearch.version>6.3.0</elasticsearch.version>
         <jodatime.version>2.1</jodatime.version>
         <hibernate.validator.version>5.1.3.Final</hibernate.validator.version>
         <junit.version>4.12</junit.version>
