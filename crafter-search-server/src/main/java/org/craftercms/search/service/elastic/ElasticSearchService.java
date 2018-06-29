@@ -5,9 +5,9 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
+import org.apache.commons.lang3.StringUtils;
 import org.craftercms.search.exception.SearchException;
 import org.craftercms.search.service.SearchService;
 import org.craftercms.search.service.impl.ElasticQuery;
@@ -21,23 +21,26 @@ import org.elasticsearch.client.RestHighLevelClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
-import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 
 public class ElasticSearchService implements SearchService<ElasticQuery> {
 
     private static final Logger logger = LoggerFactory.getLogger(ElasticSearchService.class);
 
+    //TODO: Extract values
+    protected String defaltIndex = "default";
+    protected String defaultType = "descriptor";
+
     protected RestHighLevelClient client;
-    protected XmlMapper mapper;
+    protected ElasticDocumentBuilder documentBuilder;
 
     @Required
     public void setClient(final RestHighLevelClient client) {
         this.client = client;
     }
 
-    @PostConstruct
-    public void init() {
-        mapper = new XmlMapper();
+    @Required
+    public void setDocumentBuilder(final ElasticDocumentBuilder documentBuilder) {
+        this.documentBuilder = documentBuilder;
     }
 
     @PreDestroy
@@ -60,9 +63,11 @@ public class ElasticSearchService implements SearchService<ElasticQuery> {
     @Override
     public void update(final String indexId, final String site, final String id, final String xml, final boolean
         ignoreRootInFieldNames) throws SearchException {
-        IndexRequest request = new IndexRequest(indexId, "doc", id);
+        String finalId = site + ":" + id;
+        IndexRequest request = new IndexRequest(StringUtils.isEmpty(indexId)? defaltIndex : indexId, defaultType,
+                                                finalId);
         try {
-            Map map = mapper.readValue(xml, Map.class);
+            Map map = documentBuilder.build(site, finalId, xml, ignoreRootInFieldNames);
             request.source(map);
             IndexResponse response = client.index(request);
             logger.debug("Update for {} result: {}", id, response.getResult());
@@ -73,10 +78,12 @@ public class ElasticSearchService implements SearchService<ElasticQuery> {
 
     @Override
     public void delete(final String indexId, final String site, final String id) throws SearchException {
-        DeleteRequest request = new DeleteRequest(indexId, "doc", id);
+        String finalId = site + ":" + id;
+        DeleteRequest request = new DeleteRequest(StringUtils.isEmpty(indexId)? defaltIndex : indexId, defaultType,
+                                                    finalId);
         try {
             DeleteResponse response = client.delete(request);
-            logger.debug("Delete for {} result: {}", id, response.getResult());
+            logger.debug("Delete for {} result: {}", finalId, response.getResult());
         } catch (IOException e) {
             throw new SearchException("Error deleting document", e);
         }
@@ -92,7 +99,7 @@ public class ElasticSearchService implements SearchService<ElasticQuery> {
     public void commit(final String indexId) throws SearchException {
         // TODO: CHECK IF THIS IS REALLY NEEDED?
         try {
-            FlushRequest request = new FlushRequest(indexId);
+            FlushRequest request = new FlushRequest(StringUtils.isEmpty(indexId)? defaltIndex : indexId);
             FlushResponse response = client.indices().flush(request);
             logger.debug("Flush for {} result: {}", indexId, response.getSuccessfulShards());
         } catch (IOException e) {

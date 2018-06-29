@@ -1,10 +1,13 @@
 package org.craftercms.search.service.elastic;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.util.Map;
 
 import javax.annotation.PreDestroy;
 
+import org.apache.commons.io.IOUtils;
 import org.craftercms.search.exception.SearchException;
 import org.craftercms.search.service.AdminService;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
@@ -12,13 +15,18 @@ import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexResponse;
 import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.common.xcontent.XContentType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 
 public class ElasticAdminService implements AdminService {
 
     private static final Logger logger = LoggerFactory.getLogger(ElasticAdminService.class);
+
+    protected Resource indexSettings = new ClassPathResource("crafter/search/elastic-index-settings.json");
 
     protected RestHighLevelClient client;
 
@@ -41,7 +49,8 @@ public class ElasticAdminService implements AdminService {
     @Override
     public void createIndex(final String id) throws SearchException {
         CreateIndexRequest request = new CreateIndexRequest(id);
-        try {
+        try (InputStream is = indexSettings.getInputStream()) {
+            request.source(IOUtils.toString(is, Charset.defaultCharset()), XContentType.JSON);
             CreateIndexResponse response = client.indices().create(request);
             logger.debug("Creation of index {} result: {}", id, response.isAcknowledged());
         } catch (IOException e) {

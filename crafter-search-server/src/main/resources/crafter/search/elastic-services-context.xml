@@ -9,12 +9,15 @@
         <property name="protocol" value="http"/>
     </bean>
 
+    <bean id="crafter.documentBuilder" class="org.craftercms.search.service.elastic.ElasticDocumentBuilder"/>
+
     <bean id="crafter.adminService" class="org.craftercms.search.service.elastic.ElasticAdminService">
         <property name="client" ref="crafter.elasticClient"/>
     </bean>
 
     <bean id="crafter.searchService" class="org.craftercms.search.service.elastic.ElasticSearchService">
         <property name="client" ref="crafter.elasticClient"/>
+        <property name="documentBuilder" ref="crafter.documentBuilder"/>
     </bean>
 
 </beans>
