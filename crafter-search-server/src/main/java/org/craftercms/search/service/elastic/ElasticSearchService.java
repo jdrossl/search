@@ -2,6 +2,7 @@ package org.craftercms.search.service.elastic;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -17,7 +18,13 @@ import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexResponse;
+import org.elasticsearch.action.search.SearchAction;
+import org.elasticsearch.action.search.SearchRequest;
+import org.elasticsearch.action.search.SearchRequestBuilder;
+import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
@@ -56,8 +63,31 @@ public class ElasticSearchService implements SearchService<ElasticQuery> {
 
     @Override
     public Map<String, Object> search(final String indexId, final ElasticQuery query) throws SearchException {
-        // TODO: CHECK SEARCH API
-        return null;
+        SearchSourceBuilder source = new SearchSourceBuilder();
+        source.query(QueryBuilders.queryStringQuery(query.getQuery()));
+        source.from(query.getOffset());
+        source.size(query.getNumResults());
+        source.fetchSource(query.getFieldsToReturn(), new String[]{});
+
+        SearchRequest request = new SearchRequest(indexId);
+        request.source(source);
+
+        try {
+            SearchResponse response = client.search(request);
+            return toMap(response);
+        } catch (Exception e) {
+            throw new SearchException("Error searching", e);
+        }
+    }
+
+    public Map<String, Object> toMap(SearchResponse response) {
+        Map<String, Object> result = new HashMap<>();
+
+        result.put("aggregations", response.getAggregations());
+        result.put("hits", response.getHits());
+        result.put("suggest", response.getSuggest());
+
+        return result;
     }
 
     @Override
