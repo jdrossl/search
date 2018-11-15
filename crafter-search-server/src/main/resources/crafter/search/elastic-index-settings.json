@@ -4,6 +4,20 @@
       "query": {
         "default_field": "_text_"
       }
+    },
+    "analysis": {
+      "analyzer": {
+        "html_analyzer" : {
+          "type": "custom",
+          "tokenizer": "standard",
+          "char_filter": [
+            "html_strip"
+          ],
+          "filter": [
+            "lowercase"
+          ]
+        }
+      }
     }
   },
   "mappings": {
@@ -56,7 +70,8 @@
             "match": ".+_(t|txt|en|html)$",
             "mapping": {
               "type": "text",
-              "copy_to": "_text_"
+              "copy_to": "_text_",
+              "analyzer": "html_analyzer"
             }
           }
         },
