@@ -24,6 +24,7 @@ import java.util.Map;
 import org.apache.tika.Tika;
 import org.apache.tika.metadata.Metadata;
 import org.craftercms.search.exception.SearchException;
+import org.craftercms.search.v3.service.internal.impl.AbstractDocumentParser;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.util.MultiValueMap;
 import com.fasterxml.jackson.databind.ObjectMapper;
