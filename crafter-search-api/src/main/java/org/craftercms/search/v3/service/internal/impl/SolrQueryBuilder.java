@@ -15,15 +15,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.craftercms.search.v3.service.impl;
+package org.craftercms.search.v3.service.internal.impl;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import groovy.lang.Closure;
-import org.craftercms.search.v3.service.QueryBuilder;
+import org.craftercms.search.v3.service.internal.QueryBuilder;
 
 /**
- * Utility class to easily generate Solr queries as strings.
+ * Implementation of {@link QueryBuilder} for the Lucene syntax used by Solr
  * @author joseross
  */
 public class SolrQueryBuilder extends AbstractQueryBuilder {
@@ -35,24 +35,40 @@ public class SolrQueryBuilder extends AbstractQueryBuilder {
     public static final String OPERATOR_AND = "AND";
     public static final String OPERATOR_OR = "OR";
 
+    protected String keywordNow = "NOW";
+    protected String keywordMinutes = "MINUTES";
+    protected String keywordHours = "HOURS";
+    protected String keywordDays = "DAYS";
+    protected String keywordMonths = "MONTHS";
+    protected String keywordYears = "YEARS";
+
     public SolrQueryBuilder() {
         super(OPEN_GROUP_CHAR, CLOSE_GROUP_CHAR, OPERATOR_NOT, OPERATOR_AND, OPERATOR_OR);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public QueryBuilder type(String contentType) {
+    public QueryBuilder contentType(String contentType) {
         addOperatorIfNeeded();
         append("content-type:%s", quote(contentType));
         return this;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public SolrQueryBuilder id(String objectId) {
+    public SolrQueryBuilder objectId(String objectId) {
         addOperatorIfNeeded();
         append("objectId:%s", objectId);
         return this;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public SolrQueryBuilder field(String name) {
         addOperatorIfNeeded();
@@ -60,135 +76,223 @@ public class SolrQueryBuilder extends AbstractQueryBuilder {
         return this;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public SolrQueryBuilder matches(Object value) {
         sb.append(value);
         return this;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public SolrQueryBuilder hasPhrase(String text) {
         sb.append(quote(text));
         return this;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public SolrQueryBuilder hasAny(Object... values) {
         sb.append("(").append(StringUtils.join(values, format(" %s ", orOperator))).append(")");
         return this;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public SolrQueryBuilder hasAll(Object... values) {
         sb.append("(").append(StringUtils.join(values, format(" %s ", andOperator))).append(")");
         return this;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public SolrQueryBuilder gt(Object value) {
         append("{%s TO *}", value);
         return this;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public SolrQueryBuilder gte(Object value) {
         append("[%s TO *]", value);
         return this;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public SolrQueryBuilder lt(Object value) {
         append("{* TO %s}", value);
         return this;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public SolrQueryBuilder lte(Object value) {
         append("[* TO %s]", value);
         return this;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public SolrQueryBuilder btw(Object start, Object end) {
         append("{%s TO %s}", start, end);
         return this;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public SolrQueryBuilder btwe(Object start, Object end) {
         append("[%s TO %s]", start, end);
         return this;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public void andBoosting(Number value) {
+    public void withBoost(Number value) {
         append("^%s", value);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public void andProximity(int value) {
+    public void withProximity(int value) {
         append("~%s", value);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public void andSimilarity(int value) {
-        andProximity(value);
+    public void withSimilarity(int value) {
+        withProximity(value);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void withSimilarity() {
+        append("~");
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String boost(Object value, Number boosting) {
         return format("%s^%s", value, boosting);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String quote(Object value) {
         return format("\"%s\"", value);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public DateExpression date() {
-        return new SolrDateExpression();
+    public String date(final String value, final String... modifiers) {
+        if(ArrayUtils.isNotEmpty(modifiers)) {
+            StringBuilder b = new StringBuilder();
+            b.append(value);
+            for(String modifier : modifiers) {
+                b.append(modifier);
+            }
+            return b.toString();
+        } else {
+            return value;
+        }
     }
 
-    public class SolrDateExpression implements DateExpression {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String now(final String... modifiers) {
+        return date(keywordNow, modifiers);
+    }
 
-        protected StringBuilder sb = new StringBuilder();
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String plus(final Number amount, final String unit) {
+        return format("+%s%s", amount, unit);
+    }
 
-        @Override
-        public DateExpression now() {
-            sb.append("NOW");
-            return this;
-        }
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String minus(final Number amount, final String unit) {
+        return format("-%s%s", amount, unit);
+    }
 
-        @Override
-        public DateExpression plus(final Number number) {
-            sb.append("+").append(number);
-            return this;
-        }
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String roundingTo(final String unit) {
+        return format("/%s", unit);
+    }
 
-        @Override
-        public DateExpression minus(final Number number) {
-            sb.append("-").append(number);
-            return this;
-        }
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String minutes() {
+        return keywordMinutes;
+    }
 
-        @Override
-        public DateExpression roundingTo() {
-            sb.append("/");
-            return this;
-        }
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String hours() {
+        return keywordHours;
+    }
 
-        @Override
-        public DateExpression hours() {
-            sb.append("HOURS");
-            return this;
-        }
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String days() {
+        return keywordDays;
+    }
 
-        @Override
-        public String done() {
-            return sb.toString();
-        }
-
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String years() {
+        return keywordYears;
     }
 
 }

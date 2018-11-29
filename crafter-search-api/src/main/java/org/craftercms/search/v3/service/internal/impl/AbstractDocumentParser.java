@@ -17,7 +17,7 @@
 
 package org.craftercms.search.v3.service.internal.impl;
 
-import org.craftercms.search.v3.service.DocumentParser;
+import org.craftercms.search.v3.service.internal.DocumentParser;
 
 /**
  * Base class for all implementations of {@link DocumentParser}
