@@ -58,11 +58,6 @@ public class ElasticsearchServiceImpl implements ElasticsearchService {
 
     private static final Logger logger = LoggerFactory.getLogger(ElasticsearchServiceImpl.class);
 
-    /**
-     * According to Elasticsearch documentation this will be removed and this is the recommended value
-     */
-    public static final String DEFAULT_DOC = "_doc";
-
     public static final String DEFAULT_LOCAL_ID_NAME = "localId";
 
     public static final int DEFAULT_SCROLL_SIZE = 100;
@@ -178,7 +173,7 @@ public class ElasticsearchServiceImpl implements ElasticsearchService {
 
         try {
             SearchResponse response = client.search(request, RequestOptions.DEFAULT);
-            if(response.getHits().totalHits > 0) {
+            if(response.getHits().getTotalHits().value > 0) {
                 return response.getHits().getHits()[0].getSourceAsMap();
             } else {
                 return Collections.emptyMap();
@@ -193,7 +188,7 @@ public class ElasticsearchServiceImpl implements ElasticsearchService {
         try {
             delete(indexName, siteName, docId);
             logger.debug("[{}] Indexing document {}", indexName, docId);
-            client.index(new IndexRequest(indexName, DEFAULT_DOC, getId(docId)).source(doc), RequestOptions.DEFAULT);
+            client.index(new IndexRequest(indexName).id(getId(docId)).source(doc), RequestOptions.DEFAULT);
         } catch (Exception e) {
             throw new ElasticsearchException(indexName, "Error indexing document " + docId, e);
         }
@@ -257,7 +252,7 @@ public class ElasticsearchServiceImpl implements ElasticsearchService {
         throws ElasticsearchException {
         logger.debug("[{}] Deleting document {}", indexName, docId);
         try {
-            client.delete(new DeleteRequest(indexName, DEFAULT_DOC, getId(docId)), RequestOptions.DEFAULT);
+            client.delete(new DeleteRequest(indexName).id(getId(docId)), RequestOptions.DEFAULT);
         } catch (Exception e) {
             throw new ElasticsearchException(indexName, "Error deleting document " + docId, e);
         }

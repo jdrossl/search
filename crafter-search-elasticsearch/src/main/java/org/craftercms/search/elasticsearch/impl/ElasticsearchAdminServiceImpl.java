@@ -27,12 +27,12 @@ import org.craftercms.search.elasticsearch.ElasticsearchAdminService;
 import org.craftercms.search.elasticsearch.exception.ElasticsearchException;
 import org.elasticsearch.action.admin.indices.alias.Alias;
 import org.elasticsearch.action.admin.indices.alias.get.GetAliasesRequest;
-import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
-import org.elasticsearch.action.admin.indices.get.GetIndexRequest;
 import org.elasticsearch.client.GetAliasesResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.client.indices.CreateIndexRequest;
+import org.elasticsearch.client.indices.GetIndexRequest;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -96,7 +96,7 @@ public class ElasticsearchAdminServiceImpl implements ElasticsearchAdminService 
         logger.debug("Checking if index {} exits", indexName);
         try {
             return elasticsearchClient.indices().exists(
-                new GetIndexRequest().indices(indexName), RequestOptions.DEFAULT);
+                new GetIndexRequest(indexName), RequestOptions.DEFAULT);
         } catch (IOException e) {
             throw new ElasticsearchException(indexName, "Error consulting index", e);
         }
